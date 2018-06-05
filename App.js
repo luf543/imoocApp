@@ -6,50 +6,18 @@
 
 import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
+
+import List from './app/creation/index'
+import Edit from './app/edit/index'
+import Account from './app/account/index'
+
 import {
   StyleSheet,
   Text,
   View,
   TabBarIOS,
 } from 'react-native';
-class List extends Component {
-  constructor(props){
-    super(props)
-  }
-  render(){
-    return (
-      <View style={styles.container}>
-        <Text>列表页面</Text>
-      </View>
-    )
-  }
-}
 
-class Edit extends Component {
-  constructor(props){
-    super(props)
-  }
-  render(){
-    return (
-      <View style={styles.container}>
-        <Text>制作页面</Text>
-      </View>
-    )
-  }
-}
-
-class Account extends Component {
-  constructor(props){
-    super(props)
-  }
-  render(){
-    return (
-      <View style={styles.container}>
-        <Text>账户页面</Text>
-      </View>
-    )
-  }
-}
 
 export default class App extends Component {
   constructor(props){
