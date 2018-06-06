@@ -12,6 +12,7 @@ import {
 	Image,
 	Dimensions,
 	ActivityIndicator,
+	RefreshControl,
 } from 'react-native';
 
 
@@ -30,6 +31,7 @@ class List extends Component {
 			rowHasChanged: (r1, r2) => r1 !== r2
 		});
 		this.state = {
+			isRefreshing: false,
 			isLoadingTail: false,
 			dataSource: ds.cloneWithRows([]),
 		};
@@ -75,10 +77,16 @@ class List extends Component {
 	}
 
 	_fetchData(page){
-		this.setState({
-			isLoadingTail: true
-		})
-
+		if(page !== 0){
+			this.setState({
+				isLoadingTail: true
+			})
+		}else{
+			this.setState({
+				isRefreshing: true
+			})
+		}
+		
 
 		request.get(config.api.base + config.api.creations, {
 			accessToken: 'adasd',
@@ -87,24 +95,42 @@ class List extends Component {
 			.then((data) => {
 				if (data.success) {
 					let items = cachedResults.items.slice()
-
-					items = items.concat(data.data)
+					
+					if(page !== 0){
+						items = items.concat(data.data)
+						cachedResults.nextPage += 1
+					}else{
+						items = data.data.concat(items)
+					}
 
 					cachedResults.items = items
 					cachedResults.total = data.total
 
 					setTimeout(() => {
-						this.setState({
-							isLoadingTail: false,
-							dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-						})
+						if(page !== 0){
+							this.setState({
+								isLoadingTail: false,
+								dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+							})
+						}else{
+							this.setState({
+								isRefreshing: false,
+								dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+							})
+						}
 					}, 2000)
 				}
 			})
 			.catch((error) => {
-				this.setState({
-					isLoadingTail: false
-				})
+				if(page !== 0){
+					this.setState({
+						isLoadingTail: false,
+					})
+				}else{
+					this.setState({
+						isRefreshing: false,
+					})
+				}
 				console.error(error)
 			})
 	}
@@ -121,6 +147,10 @@ class List extends Component {
 		this._fetchData(page)
 	}
 
+	_onRefresh(){
+		this._fetchData(0)
+	}
+
 	_renderFooter(){
 		if (cachedResults.total !== 0 && !this._hasMore()){
 			return (
@@ -130,6 +160,9 @@ class List extends Component {
 			)
 		}
 
+		if (!this.state.isLoadingTail){
+			return <View style={styles.loadingMore} />
+		}
 		return <ActivityIndicator style={styles.loadingMore} />
 	}
 
@@ -145,7 +178,19 @@ class List extends Component {
 					renderFooter={this._renderFooter.bind(this)}
 					onEndReached={this._fetchMoreData.bind(this)}
 					onEndReachedThreshold={20}
+					refreshControl={
+	          <RefreshControl
+	            refreshing={this.state.isRefreshing}
+	            onRefresh={this._onRefresh.bind(this)}
+	            tintColor='#ff6600'
+	            title='拼命加载中...'
+	            titleColor='#00ff00'
+	            colors={['#ff6600', '#00ff00', '#0000ff']}
+	            progressBackgroundColor='#ffff00'
+	          />
+	        }
 					enableEmptySections={true}
+					showsVerticalScrollIndicator={false}
 					automaticallyAdjustContentInsets={false}
 				/>
 			</View>
