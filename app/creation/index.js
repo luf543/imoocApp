@@ -11,10 +11,17 @@ import {
 	TouchableHighlight,
 	Image,
 	Dimensions,
+	ActivityIndicator,
 } from 'react-native';
 
 
 const {height, width} = Dimensions.get('window')
+
+const cachedResults = {
+	nextPage: 1,
+	items: [],
+	total: 0
+}
 
 class List extends Component {
 	constructor(props){
@@ -23,10 +30,12 @@ class List extends Component {
 			rowHasChanged: (r1, r2) => r1 !== r2
 		});
 		this.state = {
+			isLoadingTail: false,
 			dataSource: ds.cloneWithRows([]),
 		};
 	}
-	renderRow(row){
+
+	_renderRow(row){
 		return (
 			<TouchableHighlight>
 				<View style={styles.item}>
@@ -60,24 +69,70 @@ class List extends Component {
 			</TouchableHighlight>
 		)
 	}
+
 	componentDidMount(){
-		this._fetchData()
+		this._fetchData(1)
 	}
-	_fetchData(){
+
+	_fetchData(page){
+		this.setState({
+			isLoadingTail: true
+		})
+
+
 		request.get(config.api.base + config.api.creations, {
-			accessToken: 'adasd'
+			accessToken: 'adasd',
+			page: page
 		})
 			.then((data) => {
 				if (data.success) {
-					this.setState({
-						dataSource: this.state.dataSource.cloneWithRows(data.data)
-					})
+					let items = cachedResults.items.slice()
+
+					items = items.concat(data.data)
+
+					cachedResults.items = items
+					cachedResults.total = data.total
+
+					setTimeout(() => {
+						this.setState({
+							isLoadingTail: false,
+							dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+						})
+					}, 2000)
 				}
 			})
 			.catch((error) => {
+				this.setState({
+					isLoadingTail: false
+				})
 				console.error(error)
 			})
 	}
+
+	_hasMore(){
+		return cachedResults.items.length !== cachedResults.total
+	}
+
+	_fetchMoreData(){
+		if (!this._hasMore() || this.state.isLoadingTail){
+			return
+		}
+		const page = cachedResults.nextPage
+		this._fetchData(page)
+	}
+
+	_renderFooter(){
+		if (cachedResults.total !== 0 && !this._hasMore()){
+			return (
+				<View style={styles.loadingMore}>
+					<Text style={styles.loadingText}>没有更多了</Text>
+				</View>
+			)
+		}
+
+		return <ActivityIndicator style={styles.loadingMore} />
+	}
+
 	render(){
 		return (
 			<View style={styles.container}>
@@ -86,7 +141,10 @@ class List extends Component {
 				</View>
 				<ListView
 					dataSource={this.state.dataSource}
-					renderRow={this.renderRow}
+					renderRow={this._renderRow.bind(this)}
+					renderFooter={this._renderFooter.bind(this)}
+					onEndReached={this._fetchMoreData.bind(this)}
+					onEndReachedThreshold={20}
 					enableEmptySections={true}
 					automaticallyAdjustContentInsets={false}
 				/>
@@ -164,8 +222,14 @@ const styles = StyleSheet.create({
 	commentIcon: {
 		fontSize: 22,
 		color: '#333'
+	},
+	loadingMore: {
+		marginVertical: 20
+	},
+	loadingText: {
+		color: '#777',
+		textAlign: 'center'
 	}
-
 });
 
 export default List
