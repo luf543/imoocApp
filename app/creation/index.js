@@ -13,6 +13,7 @@ import {
 	Dimensions,
 	ActivityIndicator,
 	RefreshControl,
+	Alert,
 } from 'react-native';
 
 
@@ -22,6 +23,81 @@ const cachedResults = {
 	nextPage: 1,
 	items: [],
 	total: 0
+}
+
+class Item extends Component {
+	constructor(props){
+		super(props)
+		const row = props.row
+		this.state = {
+			up: row.voted,
+			row: row
+		}
+	}
+
+	_up(){
+		const { up, row } = this.state
+		const url = config.api.base + config.api.up
+
+		const body = {
+			id: row._id,
+			up: up ? 'no' : 'yes',
+			accessToken: 'adsas'
+		}
+
+		request.post(url, body)
+			.then((data) => {
+				if(data && data.success){
+					this.setState({
+						up: !up
+					})
+				}else{
+					Alert.alert('点赞失败，ee稍后重试')
+				}
+			})
+			.catch((err) => {
+				console.log(err)
+				Alert.alert('点赞失败，稍后重试')
+			})
+	}
+
+	render(){
+		const row = this.state.row
+
+		return(
+			<TouchableHighlight>
+				<View style={styles.item}>
+					<Text style={styles.title}>{row.title}</Text>
+					<View>
+						<Image
+							source={{uri: row.thumb}}
+							style={styles.thumb} />
+						<Icon
+							name='ios-play'
+							size={28}
+							style={styles.play}/>
+					</View>
+					<View style={styles.itemFooter}>
+						<View style={styles.handleBox}>
+							<Icon
+								name={this.state.up ? 'ios-heart' : 'ios-heart-outline'}
+								size={28}
+								style={[styles.up, this.state.up ? null : styles.down]}
+								onPress={this._up.bind(this)}/>
+							<Text style={styles.handleText} onPress={this._up.bind(this)}>喜欢</Text>
+						</View>
+						<View style={styles.handleBox}>
+							<Icon
+								name='ios-chatboxes-outline'
+								size={28}
+								style={styles.commentIcon}/>
+							<Text style={styles.handleText}>评论</Text>
+						</View>
+					</View>
+				</View>
+			</TouchableHighlight>
+		)
+	}
 }
 
 class List extends Component {
@@ -38,41 +114,11 @@ class List extends Component {
 	}
 
 	_renderRow(row){
-		return (
-			<TouchableHighlight>
-				<View style={styles.item}>
-					<Text style={styles.title}>{row.title}</Text>
-					<View>
-						<Image
-							source={{uri: row.thumb}}
-							style={styles.thumb} />
-						<Icon
-							name='ios-play'
-							size={28}
-							style={styles.play}/>
-					</View>
-					<View style={styles.itemFooter}>
-						<View style={styles.handleBox}>
-							<Icon
-								name='ios-heart-outline'
-								size={28}
-								style={styles.up}/>
-							<Text style={styles.handleText}>喜欢</Text>
-						</View>
-						<View style={styles.handleBox}>
-							<Icon
-								name='ios-chatboxes-outline'
-								size={28}
-								style={styles.commentIcon}/>
-							<Text style={styles.handleText}>评论</Text>
-						</View>
-					</View>
-				</View>
-			</TouchableHighlight>
-		)
+		return <Item row={row} />
 	}
 
 	componentDidMount(){
+		console.log('width=', width)
 		this._fetchData(1)
 	}
 
@@ -93,7 +139,7 @@ class List extends Component {
 			page: page
 		})
 			.then((data) => {
-				if (data.success) {
+				if (data && data.success) {
 					let items = cachedResults.items.slice()
 					
 					if(page !== 0){
@@ -260,9 +306,13 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		color: '#333'
 	},
-	up: {
+	down: {
 		fontSize: 22,
 		color: '#333'
+	},
+	up: {
+		fontSize: 22,
+		color: '#ed7b66'
 	},
 	commentIcon: {
 		fontSize: 22,
