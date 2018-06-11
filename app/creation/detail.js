@@ -9,6 +9,7 @@ import {
   View,
   Dimensions,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 
 const {height, width} = Dimensions.get('window')
@@ -23,6 +24,7 @@ class Detail extends Component {
       videoLoaded: false,
       playing: false,
 
+      paused: false,
       videoProgress: 0.01,
       videoTotal: 0,
       currentTime: 0,
@@ -73,9 +75,23 @@ class Detail extends Component {
   _rePlay(){
     this.refs.videoPlayer.seek(0)
   }
+  _pause(){
+    if(!this.state.paused){
+      this.setState({
+        paused: true
+      })
+    }
+  }
+  _resume(){
+    if(this.state.paused){
+      this.setState({
+        paused: false
+      })
+    }
+  }
 
   render(){
-    const {data, rate, muted, resizeMode, repeat, videoLoaded, videoProgress, playing} = this.state
+    const {data, rate, muted, resizeMode, repeat, videoLoaded, videoProgress, playing, paused} = this.state
     return (
       <View style={styles.container}>
         <Text>详情页面{data._id}</Text>
@@ -85,7 +101,7 @@ class Detail extends Component {
             source={{uri: data.video}}  //视频地址
             style={styles.video}
             volume={5}  //声音的放大倍数
-            paused={false}  //是否暂停，默认false，打开页面就可以播放
+            paused={paused}  //是否暂停，默认false，打开页面就可以播放
             rate={rate} //取值0/1，0暂停，1正常
             muted={muted} //是否静音，true为静音
             resizeMode={resizeMode} //视频在视频容器中的拉伸方式，充满整个播放区域，还是自动适应
@@ -109,6 +125,24 @@ class Detail extends Component {
                 name='ios-play'
                 size={48}
                 style={styles.playIcon}/>
+            : null
+          }
+          {
+            //TouchableOpacity必须要有子元素，不能为空
+            videoLoaded && playing
+            ? <TouchableOpacity
+                onPress={this._pause.bind(this)}
+                style={styles.pauseBtn}>
+                {
+                  paused
+                  ? <Icon
+                    onPress={this._resume.bind(this)}
+                    name='ios-play'
+                    size={48}
+                    style={styles.resumeIcon}/>
+                  : <Text></Text>
+                }
+              </TouchableOpacity>
             : null
           }
 
@@ -167,7 +201,28 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderRadius: 30,
 		color: '#ed7b66'
-  }
+  },
+  pauseBtn: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: width,
+    height: 360,
+  },
+  resumeIcon: {
+		position: 'absolute',
+		top: 140,
+		left: width / 2 - 30,
+		width: 60,
+		height: 60,
+		paddingTop: 6,
+		paddingLeft: 22,
+		backgroundColor: 'transparent',
+		borderColor: '#fff',
+		borderWidth: 1,
+		borderRadius: 30,
+		color: '#ed7b66'
+  },
 });
 
 export default Detail
