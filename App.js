@@ -56,7 +56,7 @@ const ListStack = createStackNavigator({
   Detail: {
     screen: Detail,
     navigationOptions: {
-      headerTitle: '详情页面',
+      headerTitle: '视频详情页面',
       headerStyle: headerStyle[Platform.OS],
       headerBackground: '#ee735c',
       headerTintColor: '#fff',

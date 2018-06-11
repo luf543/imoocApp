@@ -21,6 +21,7 @@ class Detail extends Component {
       data: props.navigation.state.params.data,
 
       //video loads
+      videoOk: true,
       videoLoaded: false,
       playing: false,
 
@@ -69,6 +70,9 @@ class Detail extends Component {
     })
   }
   _onError(e){
+    this.setState({
+      videoOk: false
+    })
     console.log(e)
     console.log('error')
   } 
@@ -91,10 +95,9 @@ class Detail extends Component {
   }
 
   render(){
-    const {data, rate, muted, resizeMode, repeat, videoLoaded, videoProgress, playing, paused} = this.state
+    const {data, rate, muted, resizeMode, repeat, videoLoaded, videoProgress, playing, paused, videoOk} = this.state
     return (
       <View style={styles.container}>
-        <Text>详情页面{data._id}</Text>
         <View style={styles.videoBox}>
           <Video
             ref='videoPlayer' //相当于对这个组件的引用
@@ -113,9 +116,14 @@ class Detail extends Component {
             onEnd={this._onEnd.bind(this)}
             onError={this._onError.bind(this)}
           />
+
+          {
+            !videoOk && <Text style={styles.failText}>视频出错了!很抱歉</Text>
+          }
+
           {
             //color写在组件ActivityIndicator上，否则会有报警
-            !videoLoaded && <ActivityIndicator color='#ee735c' style={styles.loading}/>
+            videoOk && !videoLoaded && <ActivityIndicator color='#ee735c' style={styles.loading}/>
           }
 
           {
@@ -169,6 +177,15 @@ const styles = StyleSheet.create({
     width: width,
     height: 360,
     backgroundColor: '#000'
+  },
+  failText: {
+    position: 'absolute',
+    left: 0,
+    top: 180,
+    width: width,
+    textAlign: 'center',
+    color: '#fff',
+    backgroundColor: 'transparent'
   },
   loading: {
     position: 'absolute',
