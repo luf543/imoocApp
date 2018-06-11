@@ -8,64 +8,97 @@ import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
 
 import List from './app/creation/index'
+import Detail from './app/creation/detail'
 import Edit from './app/edit/index'
 import Account from './app/account/index'
 
 import {
+  Platform,
   StyleSheet,
   Text,
   View,
   TabBarIOS,
+  YellowBox
 } from 'react-native';
+YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
+import {
+  createBottomTabNavigator,
+  createStackNavigator
+} from 'react-navigation'
 
+const headerStyle = {
+  ios: {
+    height: 52,
+    paddingTop: 14,
+    backgroundColor: '#ee735c'
+  },
+  android: {
+    height: 0,
+    paddingTop: 0
+  }
+}
+
+const AccountStack = createStackNavigator({
+  Account: { screen: Account },
+})
+
+const ListStack = createStackNavigator({
+  List: {
+    screen: List,
+    navigationOptions: {
+      headerTitle: '列表页面',
+      headerStyle: headerStyle[Platform.OS],
+      headerBackground: '#ee735c',
+      headerTintColor: '#fff',
+    }
+  },
+  Detail: {
+    screen: Detail,
+    navigationOptions: {
+      headerTitle: '详情页面',
+      headerStyle: headerStyle[Platform.OS],
+      headerBackground: '#ee735c',
+      headerTintColor: '#fff',
+    }
+  },
+})
+
+const Tabs = createBottomTabNavigator(
+  {
+    List: ListStack,
+    Edit: Edit,
+    Account: AccountStack,
+  },
+  {
+    navigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, tintColor }) => {
+        const { routeName } = navigation.state;
+        let iconName;
+        if (routeName === 'List') {
+          iconName = `ios-videocam${focused ? '' : '-outline'}`;
+        } else if (routeName === 'Edit') {
+          iconName = `ios-mic${focused ? '' : '-outline'}`;
+        } else if (routeName === 'Account') {
+          iconName = `ios-person${focused ? '' : '-outline'}`;
+        }
+        return <Icon name={iconName} size={28} color={tintColor} />;
+      },
+    }),
+    tabBarOptions: {
+      activeTintColor: '#ee735c',
+      inactiveTintColor: 'gray',
+      showLabel: false,
+    },
+  }
+)
 
 export default class App extends Component {
   constructor(props){
     super(props)
-    this.state = {
-      selectedTab: 'list'
-    }
   }
 
   render() {
-    return (
-      <TabBarIOS
-        tintColor="#ee735c">
-        <Icon.TabBarItem
-          iconName='ios-videocam-outline'
-          selectedIconName="ios-videocam"
-          selected={this.state.selectedTab === 'list'}
-          onPress={() => {
-            this.setState({
-              selectedTab: 'list',
-            });
-          }}>
-          <List />
-        </Icon.TabBarItem>
-        <Icon.TabBarItem
-          iconName='ios-recording-outline'
-          selectedIconName="ios-recording"
-          selected={this.state.selectedTab === 'edit'}
-          onPress={() => {
-            this.setState({
-              selectedTab: 'edit',
-            });
-          }}>
-          <Edit />
-        </Icon.TabBarItem>
-        <Icon.TabBarItem
-          iconName='ios-more-outline'
-          selectedIconName="ios-more"
-          selected={this.state.selectedTab === 'account'}
-          onPress={() => {
-            this.setState({
-              selectedTab: 'account',
-            });
-          }}>
-          <Account />
-        </Icon.TabBarItem>
-      </TabBarIOS>
-    );
+    return <Tabs />
   }
 }
 

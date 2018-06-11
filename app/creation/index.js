@@ -65,7 +65,7 @@ class Item extends Component {
 		const row = this.state.row
 
 		return(
-			<TouchableHighlight>
+			<TouchableHighlight onPress={this.props.onSelect}>
 				<View style={styles.item}>
 					<Text style={styles.title}>{row.title}</Text>
 					<View>
@@ -114,7 +114,10 @@ class List extends Component {
 	}
 
 	_renderRow(row){
-		return <Item row={row} />
+		return <Item
+			key={row._id}
+			onSelect={() => this._loadPage(row)}
+			row={row} />
 	}
 
 	componentDidMount(){
@@ -212,12 +215,21 @@ class List extends Component {
 		return <ActivityIndicator style={styles.loadingMore} />
 	}
 
+	_loadPage(row){
+		this.props.navigation.navigate('Detail', {
+      row: row
+		})
+		// this.props.navigation.push({
+		// 	routeName: 'Detail',
+		// 	params:{
+		// 		row: row
+		// 	}
+		// })
+	}
+
 	render(){
 		return (
 			<View style={styles.container}>
-				<View style={styles.header}>
-					<Text style={styles.headerTitle}>列表页面</Text>
-				</View>
 				<ListView
 					dataSource={this.state.dataSource}
 					renderRow={this._renderRow.bind(this)}
@@ -248,17 +260,6 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: '#F5FCFF',
-	},
-	header: {
-		paddingTop: 25,
-		paddingBottom: 12,
-		backgroundColor: '#ee735c'
-	},
-	headerTitle: {
-		color: '#FFF',
-		fontSize: 16,
-		textAlign: 'center',
-		fontWeight: '600'
 	},
 	item: {
 		width: width,
