@@ -217,7 +217,7 @@ class List extends Component {
 
 	_loadPage(row){
 		this.props.navigation.navigate('Detail', {
-      row: row
+      data: row
 		})
 		// this.props.navigation.push({
 		// 	routeName: 'Detail',
@@ -235,8 +235,8 @@ class List extends Component {
 					renderRow={this._renderRow.bind(this)}
 					renderFooter={this._renderFooter.bind(this)}
 					onEndReached={this._fetchMoreData.bind(this)}
-					onEndReachedThreshold={20}
-					refreshControl={
+					onEndReachedThreshold={20}	//ListView调用onEndReached之前的临界值，单位是像素。
+					refreshControl={	//ScrollView指定RefreshControl组件，用于为ScrollView提供下拉刷新功能。
 	          <RefreshControl
 	            refreshing={this.state.isRefreshing}
 	            onRefresh={this._onRefresh.bind(this)}
@@ -247,9 +247,9 @@ class List extends Component {
 	            progressBackgroundColor='#ffff00'
 	          />
 	        }
-					enableEmptySections={true}
-					showsVerticalScrollIndicator={false}
-					automaticallyAdjustContentInsets={false}
+					enableEmptySections={true}	//ListView去除警告
+					showsVerticalScrollIndicator={false}	//ScrollView当此属性为true的时候，显示一个垂直方向的滚动条
+					automaticallyAdjustContentInsets={false}	//ScrollView当滚动视图放在一个导航条或者工具条后面的时候，iOS系统是否要自动调整内容的范围。默认值为true。（译注：如果你的ScrollView或ListView的头部出现莫名其妙的空白，尝试将此属性置为false）
 				/>
 			</View>
 		)
