@@ -247,9 +247,10 @@ class Detail extends Component {
     const {content, isSending, dataSource} = this.state
     if (!content){
       Alert.alert('留言不能为空！')
+      return
     }
     if(isSending){
-      Alert.alert('正在评论中！')
+      return
     }
 
     this.setState({
