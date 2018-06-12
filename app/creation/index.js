@@ -121,7 +121,6 @@ class List extends Component {
 	}
 
 	componentDidMount(){
-		console.log('width=', width)
 		this._fetchData(1)
 	}
 
@@ -167,7 +166,7 @@ class List extends Component {
 								dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
 							})
 						}
-					}, 2000)
+					}, 0)
 				}
 			})
 			.catch((error) => {
@@ -235,18 +234,18 @@ class List extends Component {
 					renderRow={this._renderRow.bind(this)}
 					renderFooter={this._renderFooter.bind(this)}
 					onEndReached={this._fetchMoreData.bind(this)}
-					onEndReachedThreshold={20}	//ListView调用onEndReached之前的临界值，单位是像素。
 					refreshControl={	//ScrollView指定RefreshControl组件，用于为ScrollView提供下拉刷新功能。
 	          <RefreshControl
-	            refreshing={this.state.isRefreshing}
-	            onRefresh={this._onRefresh.bind(this)}
-	            tintColor='#ff6600'
-	            title='拼命加载中...'
-	            titleColor='#00ff00'
-	            colors={['#ff6600', '#00ff00', '#0000ff']}
-	            progressBackgroundColor='#ffff00'
+						refreshing={this.state.isRefreshing}
+						onRefresh={this._onRefresh.bind(this)}
+						tintColor='#ff6600'
+						title='拼命加载中...'
+						titleColor='#00ff00'
+						colors={['#ff6600', '#00ff00', '#0000ff']}
+						progressBackgroundColor='#ffff00'
 	          />
 	        }
+					onEndReachedThreshold={20}	//ListView调用onEndReached之前的临界值，单位是像素。
 					enableEmptySections={true}	//ListView去除警告
 					showsVerticalScrollIndicator={false}	//ScrollView当此属性为true的时候，显示一个垂直方向的滚动条
 					automaticallyAdjustContentInsets={false}	//ScrollView当滚动视图放在一个导航条或者工具条后面的时候，iOS系统是否要自动调整内容的范围。默认值为true。（译注：如果你的ScrollView或ListView的头部出现莫名其妙的空白，尝试将此属性置为false）

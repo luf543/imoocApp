@@ -11,6 +11,7 @@ export default {
 	api: {
 		base: 'http://rapapi.org/mockjs/34628/',
 		creations: 'api/creations',
-		up: 'api/up'
+		comment: 'api/comments',
+		up: 'api/up',
 	}
 }
