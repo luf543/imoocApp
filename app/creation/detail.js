@@ -15,6 +15,8 @@ import {
   TouchableOpacity,
   Image,
   ListView,
+  TextInput,
+  Modal,
 } from 'react-native';
 import List from '.';
 
@@ -46,6 +48,10 @@ class Detail extends Component {
       videoProgress: 0.01,
       videoTotal: 0,
       currentTime: 0,
+
+      // modal
+      animationType: 'none',
+      modalVisible: false,
 
       // video player
       rate: 1,
@@ -189,21 +195,66 @@ class Detail extends Component {
     )
   }
 
+  _focus(){
+    this._setModalVisible(true)
+  }
+  _blur(){
+
+  }
+  _closeModal(){
+    this._setModalVisible(false)
+  }
+
+  _setModalVisible(isVisible){
+    this.setState({
+      modalVisible: isVisible
+    })
+  }
+
   _renderHeader(){
     const data = this.state.data
     return (
-      <View style={styles.infoBox}>
-        <Image style={styles.avatar} source={{uri: data.author.avatar}}/>
-        <View style={styles.descBox}>
-          <Text style={styles.nickname}>{data.author.nickname}</Text>
-          <Text style={styles.title}>{data.title}</Text>
+      <View style={styles.listHeader}>
+        <View style={styles.infoBox}>
+          <Image style={styles.avatar} source={{uri: data.author.avatar}}/>
+          <View style={styles.descBox}>
+            <Text style={styles.nickname}>{data.author.nickname}</Text>
+            <Text style={styles.title}>{data.title}</Text>
+          </View>
+        </View>
+        <View style={styles.commentBox}>
+          <View style={styles.comment}>
+            <TextInput
+              placeholder='敢不敢评论一个...'
+              style={styles.content}
+              multiline={true} //多行
+              onFocus={this._focus.bind(this)}
+            />
+          </View>
+        </View>
+
+        <View style={styles.commentArea}>
+          <Text style={styles.commentTitle}>精彩评论</Text>
         </View>
       </View>
     )
   }
 
   render(){
-    const {data, rate, muted, resizeMode, repeat, videoLoaded, videoProgress, playing, paused, videoOk} = this.state
+    const {
+      data,
+      rate,
+      muted,
+      resizeMode,
+      repeat,
+      videoLoaded,
+      videoProgress,
+      playing,
+      paused,
+      videoOk,
+      modalVisible,
+      content,
+    } = this.state
     return (
       <View style={styles.container}>
         <View style={styles.videoBox}>
@@ -277,6 +328,37 @@ class Detail extends Component {
           showsVerticalScrollIndicator={false}
           automaticallyAdjustContentInsets={false}
         />
+
+        <Modal
+          animationType={'fade'}  //浮层出现的形式，动画类型
+          visible={modalVisible}  //是否可见
+          onRequestClose={() => {this._setModalVisible(false)}}  //关闭钩子
+        >
+          <View style={styles.modalContainer}>
+            <Icon
+              onPress={this._closeModal.bind(this)}
+              name='ios-close-outline'
+              style={styles.closeIcon}
+            />
+            <View style={styles.commentBox}>
+              <View style={styles.comment}>
+                <TextInput
+                  placeholder='敢不敢评论一个...'
+                  style={styles.content}
+                  multiline={true} //多行
+                  onFocus={this._focus.bind(this)}
+                  onBlur={this._blur.bind(this)}
+                  defaultValue={content}
+                  onChangeText={(text) => {
+                    this.setState({
+                      content: text
+                    })
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }
@@ -287,6 +369,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF',
   },
+
+  modalContainer: {
+    flex: 1,
+    paddingTop: 45,
+    backgroundColor: '#fff'
+  },
+  closeIcon: {
+    alignSelf: 'center',
+    fontSize: 30,
+    color: '#ee735c'
+  },
+
   videoBox: {
     width: width,
     height: width * 0.56,
@@ -414,7 +508,36 @@ const styles = StyleSheet.create({
 	loadingText: {
 		color: '#777',
 		textAlign: 'center'
-	}
+  },
+  
+  listHeader: {
+    width: width,
+    marginTop: 10
+  },
+  commentBox: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 8,
+    width: width
+  },
+  content: {
+    paddingLeft: 2,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 4,
+    fontSize: 14,
+    height: 80
+  },
+
+  commentArea: {
+    width: width,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee'
+  }
 });
 
 export default Detail
