@@ -13,13 +13,18 @@ import {
   Dimensions,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
   Image,
   ListView,
 } from 'react-native';
 import List from '.';
 
 const {height, width} = Dimensions.get('window')
+
+const cachedResults = {
+	nextPage: 1,
+	items: [],
+	total: 0
+}
 
 class Detail extends Component {
   constructor(props){
@@ -29,18 +34,20 @@ class Detail extends Component {
     })
     this.state =  {
       data: props.navigation.state.params.data,
+
+      // comments
       dataSource: ds.cloneWithRows([]),
 
       //video loads
       videoOk: true,
       videoLoaded: false,
       playing: false,
-
       paused: false,
       videoProgress: 0.01,
       videoTotal: 0,
       currentTime: 0,
 
+      // video player
       rate: 1,
       muted: false,
       resizeMode: 'contain',
@@ -106,28 +113,69 @@ class Detail extends Component {
   }
 
   componentDidMount(){
-    this._fetchData()
+    this._fetchData(1)
   }
-  _fetchData(){
-    request.get(config.api.base + config.api.comment, {
-      id: 124,
-      accessToken: '1212312'
+
+  _fetchData(page){
+    this.setState({
+      isLoadingTail: true
     })
+
+		request.get(config.api.base + config.api.comment, {
+      accessToken: 'adasd',
+      creation: 124,
+			page: page
+		})
     .then((data) => {
-      if(data && data.success){
-        const comments = data.data
-        if(comments && comments.length > 0){
-          this.setState({
-            comments: comments,
-            dataSource: this.state.dataSource.cloneWithRows(comments)
-          })
-        }
+      if (data && data.success) {
+        let items = cachedResults.items.slice()
+        
+        items = items.concat(data.data)
+        cachedResults.nextPage += 1
+
+        cachedResults.items = items
+        cachedResults.total = data.total
+
+        this.setState({
+          isLoadingTail: false,
+          dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+        })
       }
     })
-    .catch(((error) => {
-      console.log(error)
-    }))
-  }
+    .catch((error) => {
+      this.setState({
+        isLoadingTail: false,
+      })
+      console.error(error)
+    })
+	}
+
+	_hasMore(){
+		return cachedResults.items.length !== cachedResults.total
+	}
+
+	_fetchMoreData(){
+		if (!this._hasMore() || this.state.isLoadingTail){
+			return
+		}
+		const page = cachedResults.nextPage
+		this._fetchData(page)
+	}
+
+	_renderFooter(){
+		if (cachedResults.total !== 0 && !this._hasMore()){
+			return (
+				<View style={styles.loadingMore}>
+					<Text style={styles.loadingText}>没有更多了</Text>
+				</View>
+			)
+		}
+
+		if (!this.state.isLoadingTail){
+			return <View style={styles.loadingMore} />
+		}
+		return <ActivityIndicator style={styles.loadingMore} />
+	}
 
   _renderRow(row){
     return (
@@ -136,6 +184,19 @@ class Detail extends Component {
         <View style={styles.reply}>
           <Text style={styles.replyNickname}>{row.replyBy.nickname}</Text>
           <Text style={styles.replyContent}>{row.content}</Text>
+        </View>
+      </View>
+    )
+  }
+
+  _renderHeader(){
+    const data = this.state.data
+    return (
+      <View style={styles.infoBox}>
+        <Image style={styles.avatar} source={{uri: data.author.avatar}}/>
+        <View style={styles.descBox}>
+          <Text style={styles.nickname}>{data.author.nickname}</Text>
+          <Text style={styles.title}>{data.title}</Text>
         </View>
       </View>
     )
@@ -205,28 +266,17 @@ class Detail extends Component {
             <View style={[styles.progressBar, {width: width * videoProgress}]}></View>
           </View>
         </View>
-        <ScrollView
-          enableEmptySections={true}	//ListView去除警告
-					showsVerticalScrollIndicator={false}	//ScrollView当此属性为true的时候，显示一个垂直方向的滚动条
-          automaticallyAdjustContentInsets={false}	//禁止自动调整内容属性
-          style={styles.scrollView}
-        >
-          <View style={styles.infoBox}>
-            <Image style={styles.avatar} source={{uri: data.author.avatar}}/>
-            <View style={styles.descBox}>
-              <Text style={styles.nickname}>{data.author.nickname}</Text>
-              <Text style={styles.title}>{data.title}</Text>
-            </View>
-          </View>
-
-          <ListView
-            dataSource={this.state.dataSource}
-            renderRow={this._renderRow.bind(this)}
-            enableEmptySections={true}
-            showsVerticalScrollIndicator={false}
-            automaticallyAdjustContentInsets={false}
-          />
-        </ScrollView>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this._renderRow.bind(this)}
+          renderHeader={this._renderHeader.bind(this)}
+          renderFooter={this._renderFooter.bind(this)}
+          onEndReached={this._fetchMoreData.bind(this)}
+          onEndReachedThreshold={20}
+          enableEmptySections={true}
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustContentInsets={false}
+        />
       </View>
     )
   }
@@ -356,7 +406,15 @@ const styles = StyleSheet.create({
   },
   reply: {
     flex: 1
-  }
+  },
+
+  loadingMore: {
+		marginVertical: 20
+	},
+	loadingText: {
+		color: '#777',
+		textAlign: 'center'
+	}
 });
 
 export default Detail

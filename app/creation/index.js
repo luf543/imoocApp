@@ -140,47 +140,45 @@ class List extends Component {
 			accessToken: 'adasd',
 			page: page
 		})
-			.then((data) => {
-				if (data && data.success) {
-					let items = cachedResults.items.slice()
-					
-					if(page !== 0){
-						items = items.concat(data.data)
-						cachedResults.nextPage += 1
-					}else{
-						items = data.data.concat(items)
-					}
-
-					cachedResults.items = items
-					cachedResults.total = data.total
-
-					setTimeout(() => {
-						if(page !== 0){
-							this.setState({
-								isLoadingTail: false,
-								dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-							})
-						}else{
-							this.setState({
-								isRefreshing: false,
-								dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-							})
-						}
-					}, 0)
+		.then((data) => {
+			if (data && data.success) {
+				let items = cachedResults.items.slice()
+				
+				if(page !== 0){
+					items = items.concat(data.data)
+					cachedResults.nextPage += 1
+				}else{
+					items = data.data.concat(items)
 				}
-			})
-			.catch((error) => {
+
+				cachedResults.items = items
+				cachedResults.total = data.total
+
 				if(page !== 0){
 					this.setState({
 						isLoadingTail: false,
+						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
 					})
 				}else{
 					this.setState({
 						isRefreshing: false,
+						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
 					})
 				}
-				console.error(error)
-			})
+			}
+		})
+		.catch((error) => {
+			if(page !== 0){
+				this.setState({
+					isLoadingTail: false,
+				})
+			}else{
+				this.setState({
+					isRefreshing: false,
+				})
+			}
+			console.error(error)
+		})
 	}
 
 	_hasMore(){
