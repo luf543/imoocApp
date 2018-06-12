@@ -52,7 +52,7 @@ class Item extends Component {
 						up: !up
 					})
 				}else{
-					Alert.alert('点赞失败，ee稍后重试')
+					Alert.alert('点赞失败，稍后重试')
 				}
 			})
 			.catch((err) => {

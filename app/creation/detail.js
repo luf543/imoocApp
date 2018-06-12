@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Icon from 'react-native-vector-icons/Ionicons'
 import Video from 'react-native-video'
+import Button from 'react-native-button'
 
 import request from '../common/request'
 import config from '../common/config'
@@ -17,6 +18,7 @@ import {
   ListView,
   TextInput,
   Modal,
+  Alert,
 } from 'react-native';
 import List from '.';
 
@@ -52,6 +54,7 @@ class Detail extends Component {
       // modal
       animationType: 'none',
       modalVisible: false,
+      isSending: false,
 
       // video player
       rate: 1,
@@ -127,7 +130,7 @@ class Detail extends Component {
       isLoadingTail: true
     })
 
-		request.get(config.api.base + config.api.comment, {
+		request.get(config.api.base + config.api.comments, {
       accessToken: 'adasd',
       creation: 124,
 			page: page
@@ -240,6 +243,64 @@ class Detail extends Component {
     )
   }
 
+  _submit(){
+    const {content, isSending, dataSource} = this.state
+    if (!content){
+      Alert.alert('留言不能为空！')
+    }
+    if(isSending){
+      Alert.alert('正在评论中！')
+    }
+
+    this.setState({
+      isSending: true
+    }, () => {
+      request.post(config.api.base + config.api.comment, {
+        accessToken: 'asad',
+        creation: '213213',
+        content: content
+      })
+      .then((data) => {
+        console.log('post comment', data)
+        if(data && data.success){
+          let items = cachedResults.items.slice()
+
+          items = [{
+            content: content,
+            replyBy: {
+              avatar: 'http://dummyimage.com/640x640/77e1d6)',
+              nickname: '八戒'
+            }
+          }].concat(items)
+
+          cachedResults.items = items
+          cachedResults.total = cachedResults.total + 1
+
+          this.setState({
+            content: '',
+            isSending: false,
+            dataSource: dataSource.cloneWithRows(cachedResults.items)
+          })
+
+          this._setModalVisible(false)
+        }else{
+          throw new Error("接口正常，返回数据为空")
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        this.setState({
+          isSending: false,
+        })
+        Alert.alert('留言失败，稍后重试！','',[
+          {text: 'OK', onPress: () => {
+            this._setModalVisible(false)
+          }},
+        ])
+      })
+    })
+  }
+
   render(){
     const {
       data,
@@ -340,6 +401,7 @@ class Detail extends Component {
               name='ios-close-outline'
               style={styles.closeIcon}
             />
+
             <View style={styles.commentBox}>
               <View style={styles.comment}>
                 <TextInput
@@ -357,6 +419,8 @@ class Detail extends Component {
                 />
               </View>
             </View>
+
+            <Button style={styles.submitBtn} onPress={this._submit.bind(this)}>评论</Button>
           </View>
         </Modal>
       </View>
@@ -378,6 +442,16 @@ const styles = StyleSheet.create({
   closeIcon: {
     alignSelf: 'center',
     fontSize: 30,
+    color: '#ee735c'
+  },
+  submitBtn: {
+    width: width - 20,
+    padding: 16,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: '#ee735c',
+    borderRadius: 4,
+    fontSize: 18,
     color: '#ee735c'
   },
 
