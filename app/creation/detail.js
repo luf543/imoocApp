@@ -10,6 +10,8 @@ import {
   Dimensions,
   ActivityIndicator,
   TouchableOpacity,
+  ScrollView,
+  Image,
 } from 'react-native';
 
 const {height, width} = Dimensions.get('window')
@@ -158,6 +160,20 @@ class Detail extends Component {
             <View style={[styles.progressBar, {width: width * videoProgress}]}></View>
           </View>
         </View>
+        <ScrollView
+          enableEmptySections={true}	//ListView去除警告
+					showsVerticalScrollIndicator={false}	//ScrollView当此属性为true的时候，显示一个垂直方向的滚动条
+          automaticallyAdjustContentInsets={false}	//禁止自动调整内容属性
+          style={styles.scrollView}
+        >
+          <View style={styles.infoBox}>
+            <Image style={styles.avatar} source={{uri: data.author.avatar}}/>
+            <View style={styles.descBox}>
+              <Text style={styles.nickname}>{data.author.nickname}</Text>
+              <Text style={styles.title}>{data.title}</Text>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     )
   }
@@ -240,6 +256,31 @@ const styles = StyleSheet.create({
 		borderRadius: 30,
 		color: '#ed7b66'
   },
+
+  infoBox: {
+    width: width,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    marginRight: 10,
+    marginLeft: 10,
+    borderRadius: 30
+  },
+  descBox: {
+    flex: 1
+  },
+  nickname: {
+    fontSize: 18
+  },
+  title: {
+    marginTop: 8,
+    fontSize: 16,
+    color: '#666'
+  }
 });
 
 export default Detail
