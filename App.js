@@ -66,9 +66,9 @@ const ListStack = createStackNavigator({
 
 const Tabs = createBottomTabNavigator(
   {
+    Account: AccountStack,
     List: ListStack,
     Edit: Edit,
-    Account: AccountStack,
   },
   {
     navigationOptions: ({ navigation }) => ({

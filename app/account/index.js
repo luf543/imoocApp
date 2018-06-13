@@ -14,7 +14,13 @@ class Account extends Component {
   render(){
     return (
       <View style={styles.container}>
-        <Text>账户页面</Text>
+        <Text style={[styles.item, styles.item1]}>账户页面1</Text>
+        <View style={[styles.item, styles.item1]}>
+          <Text>账户页面2</Text>
+        </View>
+        <View style={[styles.item, styles.item1]}>
+          <Text>账户页面3</Text>
+        </View>
       </View>
     )
   }
@@ -22,10 +28,12 @@ class Account extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
+    flex: 1, //宽度高度充满整个视窗
+    flexDirection: 'row',  //默认column
+    flexWrap: 'wrap', //默认nowrap不换行
+    justifyContent: 'space-around',  //主轴控制，默认flex-start，两端对齐space-between，两端对齐且两边距离是中间距离一半space-around
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#ff6600',
   }
 });
 
