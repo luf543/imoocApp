@@ -4,13 +4,89 @@ import {
   StyleSheet,
   Text,
   View,
+  AsyncStorage,
 } from 'react-native';
 
 
 class Account extends Component {
   constructor(props){
     super(props)
+    this.state = {
+      user: {
+        nickname: '老四',
+        times: 0
+      }
+    }
   }
+
+  componentDidMount(){
+  
+    //AsyncStorage 键'user' 值必须是一个字符串或者数组[key: string, value: string]方式，如果是一个对象自变量，就会报错
+
+    //回调方式
+    // AsyncStorage.setItem('user', userData, (err)=>{
+    //   if(err){
+    //     console.log(err)
+    //     console.log('save fails')
+    //   }else{
+    //     console.log('save ok')
+    //   }
+    // })
+
+    //promise方式
+    // AsyncStorage
+    //   .getItem('user')
+    //   .catch((err)=>{
+    //     console.log(err)
+    //     console.log('get fails')
+    //   })
+    //   .then((data)=>{
+    //     if(data === null){
+    //       data = this.state.user
+    //     }else{
+    //       data = JSON.parse(data)
+    //     }
+
+    //     this.setState({
+    //       user: data
+    //     }, ()=>{
+    //       data.times++
+    //       const userData = JSON.stringify(data)
+    //       AsyncStorage
+    //         .setItem('user', userData)
+    //         .catch((err)=>{
+    //           console.log(err)
+    //           console.log('save fails')
+    //         })
+    //         .then(()=>{
+    //           console.log('save ok')
+    //         })
+    //     })
+    //   })
+
+    // AsyncStorage.removeItem('user')
+    //   .then(()=>{
+    //     console.log('remove ok')
+    //   })
+
+    // AsyncStorage.multiSet([['user1', '1'], ['user2', '2']])
+    //   .then(()=>{
+    //     console.log('save ok')
+    //   })
+    // AsyncStorage.multiGet(['user1', 'user2', 'user'])
+    //   .then((data)=>{
+    //     console.log(data)
+    //   })
+    AsyncStorage.multiRemove(['user1', 'user2'])
+      .then(()=>{
+        console.log('remove ok')
+        AsyncStorage.multiGet(['user1', 'user2', 'user'])
+          .then((data)=>{
+            console.log(data)
+          })
+      })
+  }
+
   render(){
     return (
       <View style={styles.container}>
@@ -21,6 +97,9 @@ class Account extends Component {
         <View style={[styles.item, styles.item3]}>
           <Text>账户页面3</Text>
         </View>
+        <Text style={[styles.item, styles.item1]}>
+          {this.state.user.nickname}不爽了{this.state.user.times}次
+        </Text>
       </View>
     )
   }
