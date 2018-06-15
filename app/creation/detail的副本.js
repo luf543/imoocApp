@@ -181,7 +181,7 @@ class Detail extends Component {
 		}
 
 		if (!this.state.isLoadingTail){
-			return <View style={styles.loadingMore}></View>
+			return <View style={styles.loadingMore} />
 		}
 		return <ActivityIndicator style={styles.loadingMore} />
 	}
@@ -230,7 +230,7 @@ class Detail extends Component {
             <TextInput
               placeholder='敢不敢评论一个...'
               style={styles.content}
-              multiline={true}
+              multiline={true} //多行
               onFocus={this._focus.bind(this)}
             />
           </View>
@@ -321,15 +321,15 @@ class Detail extends Component {
       <View style={styles.container}>
         <View style={styles.videoBox}>
           <Video
-            ref='videoPlayer'
-            source={{uri: data.video}}
+            ref='videoPlayer' //相当于对这个组件的引用
+            source={{uri: data.video}}  //视频地址
             style={styles.video}
-            volume={5}
-            paused={paused}
-            rate={rate}
-            muted={muted}
-            resizeMode={resizeMode}
-            repeat={repeat}
+            volume={5}  //声音的放大倍数
+            paused={paused}  //是否暂停，默认false，打开页面就可以播放
+            rate={rate} //取值0/1，0暂停，1正常
+            muted={muted} //是否静音，true为静音
+            resizeMode={resizeMode} //视频在视频容器中的拉伸方式，充满整个播放区域，还是自动适应
+            repeat={repeat} //是否重复播放
 
             onLoadStart={this._onLoadStart.bind(this)}
             onLoad={this._onLoad.bind(this)}
@@ -339,11 +339,12 @@ class Detail extends Component {
           />
 
           {
-            !videoOk ? <Text style={styles.failText}>视频出错了!很抱歉</Text> : <View></View>
+            !videoOk ? <Text style={styles.failText}>视频出错了!很抱歉</Text> : null
           }
 
           {
-            videoOk && !videoLoaded ? <ActivityIndicator color='#ee735c' style={styles.loading}/> : null
+            //color写在组件ActivityIndicator上，否则会有报警
+            (videoOk && !videoLoaded) ? <ActivityIndicator color='#ee735c' style={styles.loading}/> : null
           }
 
           {
@@ -356,6 +357,7 @@ class Detail extends Component {
             : null
           }
           {
+            //TouchableOpacity必须要有子元素，不能为空
             videoLoaded && playing
             ? <TouchableOpacity
                 onPress={this._pause.bind(this)}
@@ -390,9 +392,9 @@ class Detail extends Component {
         />
 
         <Modal
-          animationType={'fade'}
-          visible={modalVisible}
-          onRequestClose={() => {this._setModalVisible(false)}}
+          animationType={'fade'}  //浮层出现的形式，动画类型
+          visible={modalVisible}  //是否可见
+          onRequestClose={() => {this._setModalVisible(false)}}  //关闭钩子
         >
           <View style={styles.modalContainer}>
             <Icon
@@ -406,7 +408,7 @@ class Detail extends Component {
                 <TextInput
                   placeholder='敢不敢评论一个...'
                   style={styles.content}
-                  multiline={true}
+                  multiline={true} //多行
                   onFocus={this._focus.bind(this)}
                   onBlur={this._blur.bind(this)}
                   defaultValue={content}

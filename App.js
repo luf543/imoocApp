@@ -15,9 +15,6 @@ import Account from './app/account/index'
 import {
   Platform,
   StyleSheet,
-  Text,
-  View,
-  TabBarIOS,
   YellowBox
 } from 'react-native';
 import {
