@@ -9,10 +9,12 @@ export default {
 		}
 	},
 	api: {
-		base: 'http://rapapi.org/mockjs/34628/',
+		base: 'https://www.easy-mock.com/mock/5b286fd9b2d7376412a0c42f/',
 		creations: 'api/creations',
 		comments: 'api/comments',
-		comment: 'api/comment',
+		comment: 'api/comments',
 		up: 'api/up',
+		signup: 'api/u/signup',
+		verify: 'api/u/verify',
 	}
 }

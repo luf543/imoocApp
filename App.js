@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import List from './app/creation/index'
 import Detail from './app/creation/detail'
 import Edit from './app/edit/index'
-import Account from './app/account/index'
+import Login from './app/account/login'
 
 import {
   Platform,
@@ -36,9 +36,9 @@ const headerStyle = {
   }
 }
 
-const AccountStack = createStackNavigator({
-  Account: { screen: Account },
-})
+// const AccountStack = createStackNavigator({
+//   Account: { screen: Account },
+// })
 
 const ListStack = createStackNavigator({
   List: {
@@ -63,7 +63,7 @@ const ListStack = createStackNavigator({
 
 const Tabs = createBottomTabNavigator(
   {
-    Account: AccountStack,
+    Account: Login,
     List: ListStack,
     Edit: Edit,
   },
