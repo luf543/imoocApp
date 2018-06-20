@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
+import * as ImagePicker from 'react-native-image-picker'
 
 import {
   StyleSheet,
@@ -13,6 +14,19 @@ import {
 } from 'react-native';
 
 const {height, width} = Dimensions.get('window')
+const photoOptions = {
+  title: '选择头像',
+  cancelButtonTitle: '取消',
+  takePhotoButtonTitle: '拍照',
+  chooseFromLibraryButtonTitle: '选择相册',
+  quality: 0.75,  //图片质量
+  allowsEditing: true,  //是不是内置应用对照片操作
+  noData: false,  //图片转base64
+  storageOptions: {
+    skipBackup: true, //图片不会传iCloud
+    path: 'images'
+  }
+};
 
 class Account extends Component {
   constructor(props){
@@ -40,13 +54,31 @@ class Account extends Component {
       })
   }
 
+  _pickPhoto(){
+    ImagePicker.showImagePicker(photoOptions, (res) => {
+      console.log('res = ', res)
+     
+      if (res.didCancel) {
+        console.log('User cancelled image picker')
+        return
+      }
+
+      const avatarData = 'data:image/jpeg;base64,' + res.data
+      const user = this.state.user
+      user.avatar = avatarData
+      this.setState({
+        user: user
+      })
+    })
+  }
+
   render(){
     const {user} = this.state
     return (
       <View style={styles.container}>
       {
         user.avatar
-        ? <TouchableOpacity style={styles.avatarContainer}>
+        ? <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
           <ImageBackground source={{uri: user.avatar}} style={styles.avatarContainer}>
             <View style={styles.avatarBox}>
               <Image
@@ -56,14 +88,14 @@ class Account extends Component {
             </View>
           </ImageBackground>
         </TouchableOpacity>
-        : <View style={styles.avatarContainer}>
+        : <TouchableOpacity style={styles.avatarContainer} onPress={this._pickPhoto.bind(this)}>
           <Text style={styles.avatarTip}>添加头像</Text>
-          <TouchableOpacity style={styles.avatarBox}>
+          <View style={styles.avatarBox}>
             <Icon
               name='ios-cloud-upload-outline'
               style={styles.plusIcon}/>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       }
       </View>
     )
