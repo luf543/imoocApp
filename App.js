@@ -10,12 +10,14 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import List from './app/creation/index'
 import Detail from './app/creation/detail'
 import Edit from './app/edit/index'
+import Account from './app/account/index'
 import Login from './app/account/login'
 
 import {
   Platform,
   StyleSheet,
-  YellowBox
+  YellowBox,
+  AsyncStorage,
 } from 'react-native';
 import {
   createBottomTabNavigator,
@@ -36,9 +38,9 @@ const headerStyle = {
   }
 }
 
-// const AccountStack = createStackNavigator({
-//   Account: { screen: Account },
-// })
+const AccountStack = createStackNavigator({
+  Account: { screen: Account },
+})
 
 const ListStack = createStackNavigator({
   List: {
@@ -63,9 +65,9 @@ const ListStack = createStackNavigator({
 
 const Tabs = createBottomTabNavigator(
   {
-    Account: Login,
     List: ListStack,
     Edit: Edit,
+    Account: AccountStack,
   },
   {
     navigationOptions: ({ navigation }) => ({
@@ -93,9 +95,56 @@ const Tabs = createBottomTabNavigator(
 export default class App extends Component {
   constructor(props){
     super(props)
+    this.state = {
+      user: null,
+      logined: false
+    }
+  }
+
+  componentDidMount(){
+    this._asyncAppStatus()
+  }
+
+  _asyncAppStatus(){
+    AsyncStorage.getItem('user')
+      .catch((err)=>{
+        console.log(err)
+        console.log('get fails')
+      })
+      .then((data) => {
+        let user
+        let newState = {}
+
+        if(data){
+          user = JSON.parse(data)
+        }
+
+        if(user && user.accessToken){
+          newState.user = user
+          newState.logined = true
+        }else{
+          newState.logined = false
+        }
+
+        this.setState(newState)
+      })
+  }
+
+  _afterLogin(user){
+    user = JSON.stringify(user)
+    AsyncStorage.setItem('user', user)
+      .then(() => {
+        this.setState({
+          logined: true,
+          user: user
+        })
+      })
   }
 
   render() {
+    if(!this.state.logined){
+      return <Login afterLogin={this._afterLogin.bind(this)}/>
+    }
     return <Tabs />
   }
 }

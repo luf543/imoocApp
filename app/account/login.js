@@ -76,8 +76,7 @@ class Login extends Component {
     request.post(config.api.base + config.api.verify, body)
       .then((data) => {
         if(data && data.success){
-          console.log('login ok')
-          console.log(data)
+          this.props.afterLogin(data.data)
         }else{
           Alert.alert('获取验证码失败，请检查手机号是否正确')
         }
