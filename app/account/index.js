@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
+import sha1 from 'sha1'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'react-native-image-picker'
+
+import request from '../common/request'
+import config from '../common/config'
 
 import {
   StyleSheet,
@@ -26,7 +30,16 @@ const photoOptions = {
     skipBackup: true, //图片不会传iCloud
     path: 'images'
   }
-};
+}
+const CLOUDINARY = {
+  cloud_name: 'gougou',
+  api_key: '852224485571877',
+  api_secret: 'ht91J3cXl2TnkAgLR-ftK-iasPE',
+  base: 'http://res.cloudinary.com/gougou',
+  image: 'https://api.cloudinary.com/v1_1/gougou/image/upload',
+  video: 'https://api.cloudinary.com/v1_1/gougou/video/upload',
+  audio: 'https://api.cloudinary.com/v1_1/gougou/audio/upload',
+}
 
 class Account extends Component {
   constructor(props){
@@ -68,6 +81,25 @@ class Account extends Component {
       user.avatar = avatarData
       this.setState({
         user: user
+      })
+
+      const timestamp = Date.now()
+      const tags = 'app,avatar'
+      const folder = 'avatar'
+      const accessToken = this.state.user.accessToken
+
+      request.post(config.api.base + config.api.signature, {
+        accessToken: accessToken,
+        timestamp: timestamp,
+        type: 'avatar'
+      })
+      .then((data) => {
+        if(data && data.success){
+          // data.data
+          let signature = 'folder=' + folder + '&tags=' + tags + '&timestamp=' + timestamp + CLOUDINARY.api_secret
+
+          signature = sha1(signature)
+        }
       })
     })
   }
