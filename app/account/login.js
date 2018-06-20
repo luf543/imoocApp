@@ -130,7 +130,7 @@ class Login extends Component {
                       countType='seconds' // 计时类型：seconds / date
                       auto={true} // 自动开始
                       afterEnd={this._countingDone.bind(this)} // 结束回调
-                      timeLeft={60} // 正向计时 时间起点为0秒
+                      timeLeft={6} // 正向计时 时间起点为0秒
                       step={-1} // 计时步长，以秒为单位，正数则为正计时，负数为倒计时
                       startText='获取验证码' // 开始的文本
                       endText='获取验证码' // 结束的文本
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     backgroundColor: '#ee735c',
     borderColor: '#ee735c',
+    overflow: 'hidden',
     color: '#fff',
     textAlign: 'left',
     fontWeight: '600',

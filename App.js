@@ -39,7 +39,15 @@ const headerStyle = {
 }
 
 const AccountStack = createStackNavigator({
-  Account: { screen: Account },
+  Account: { 
+    screen: Account,
+    navigationOptions: {
+      headerTitle: '我的账户',
+      headerStyle: headerStyle[Platform.OS],
+      headerBackground: '#ee735c',
+      headerTintColor: '#fff',
+    }
+  },
 })
 
 const ListStack = createStackNavigator({
