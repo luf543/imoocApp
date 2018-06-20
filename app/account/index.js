@@ -15,6 +15,7 @@ import {
   Dimensions,
   Image,
   ImageBackground,
+  Alert,
 } from 'react-native';
 
 const {height, width} = Dimensions.get('window')
@@ -39,6 +40,10 @@ const CLOUDINARY = {
   image: 'https://api.cloudinary.com/v1_1/gougou/image/upload',
   video: 'https://api.cloudinary.com/v1_1/gougou/video/upload',
   audio: 'https://api.cloudinary.com/v1_1/gougou/audio/upload',
+}
+
+function avatar(id, type) {
+  return CLOUDINARY.base + '/' + type + '/upload/' + id
 }
 
 class Account extends Component {
@@ -77,12 +82,6 @@ class Account extends Component {
       }
 
       const avatarData = 'data:image/jpeg;base64,' + res.data
-      const user = this.state.user
-      user.avatar = avatarData
-      this.setState({
-        user: user
-      })
-
       const timestamp = Date.now()
       const tags = 'app,avatar'
       const folder = 'avatar'
@@ -91,7 +90,11 @@ class Account extends Component {
       request.post(config.api.base + config.api.signature, {
         accessToken: accessToken,
         timestamp: timestamp,
-        type: 'avatar'
+        folder: folder,
+        tags: tags,
+      })
+      .catch((err) => {
+        console.log(err)
       })
       .then((data) => {
         if(data && data.success){
@@ -99,9 +102,62 @@ class Account extends Component {
           let signature = 'folder=' + folder + '&tags=' + tags + '&timestamp=' + timestamp + CLOUDINARY.api_secret
 
           signature = sha1(signature)
+
+          const body = new FormData()
+
+          body.append('folder', folder)
+          body.append('signature', signature)
+          body.append('tags', tags)
+          body.append('timestamp', timestamp)
+          body.append('api_key', CLOUDINARY.api_key)
+          body.append('resource_type', 'image')
+          body.append('file', avatarData)
+
+          this._upload(body)
         }
       })
     })
+  }
+
+  _upload(body){
+    const xhr = new XMLHttpRequest()
+    const url = CLOUDINARY.image
+    xhr.open('POST', url)
+    xhr.onload = () => {
+      if(xhr.status !== 200){
+        Alert.alert('请求失败')
+        console.log(xhr.responseText)
+
+        return
+      }
+
+      if(!xhr.responseText){
+        Alert.alert('请求失败')
+
+        return
+      }
+
+      let response
+
+      try {
+        response = JSON.parse(xhr.response)
+      }
+      catch (e) {
+        console.log(e)
+        console.log('parse fails')
+      }
+
+      if(response && response.public_id){
+        const user = this.state.user
+        user.avatar = avatar(response.public_id, 'image')
+
+        this.setState({
+          user: user
+        })
+      }
+    }
+
+    xhr.send(body)
   }
 
   render(){
