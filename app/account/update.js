@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button';
+
+import request from '../common/request'
+import config from '../common/config'
+
 import {
   StyleSheet,
   Text,
@@ -36,6 +40,29 @@ class Update extends Component {
     })
   }
 
+  _asyncUser(isAvatar){
+    let user = this.state.user
+    if(user && user.accessToken){
+      request.post(config.api.base + config.api.update, user)
+      .then((data) => {
+        if(data && data.success){
+          user = data.data
+
+          if(isAvatar){
+            Alert.alert('头像更新成功')
+          }
+
+          this.setState({
+            user: user
+          }, () => {
+            this.props.navigation.goBack()
+            AsyncStorage.setItem('user', JSON.stringify(user))
+          })
+        }
+      })
+    }
+  }
+
   _changeUserState(key, value){
     const user = this.state.user
 
@@ -44,6 +71,12 @@ class Update extends Component {
     this.setState({
       user: user
     })
+  }
+
+  
+
+  _submit(){
+    this._asyncUser()
   }
 
   render(){
@@ -73,9 +106,9 @@ class Update extends Component {
               style={styles.inputField}
               autoCapitalize={'none'}
               autoCorrect={false}
-              defaultValue={user.bread}
+              defaultValue={user.breed}
               onChangeText={(text) => {
-                this._changeUserState('bread', text)
+                this._changeUserState('breed', text)
               }}
             />
           </View>
@@ -115,6 +148,10 @@ class Update extends Component {
               ]}
               name='ios-paw-outline'>女</Icon.Button>
           </View>
+
+          <Button
+            style={styles.btn}
+            onPress={this._submit.bind(this)}>保存资料</Button>
 
         </View>
       </View>
@@ -162,6 +199,18 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#666',
     fontSize: 14
+  },
+
+  btn: {
+    marginTop: 25,
+    padding: 10,
+    marginRight: 10,
+    marginLeft: 10,
+    backgroundColor: 'transparent',
+    borderColor: '#ee735c',
+    borderWidth: 1,
+    borderRadius: 4,
+    color: '#ee735c'
   }
 });
 

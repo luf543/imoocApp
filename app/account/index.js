@@ -3,6 +3,7 @@ import sha1 from 'sha1'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'react-native-image-picker'
 import * as Progress from 'react-native-progress';
+import Button from 'react-native-button';
 
 import request from '../common/request'
 import config from '../common/config'
@@ -65,6 +66,7 @@ class Account extends Component {
   }
 
   componentDidMount(){
+    console.log('navigation==',this.props)
     AsyncStorage.getItem('user')
     .then((data) => {
       let user
@@ -212,6 +214,11 @@ class Account extends Component {
     }
   }
 
+  _logout(){
+    //this.props.logout()
+    AsyncStorage.removeItem('user')
+  }
+
   render(){
     const {user, avatarUploading, avatarProgress} = this.state
     return (
@@ -255,6 +262,10 @@ class Account extends Component {
           </View>
         </TouchableOpacity>
       }
+
+      <Button
+            style={styles.btn}
+            onPress={this._logout.bind(this)}>退出登录</Button>
       </View>
     )
   }
@@ -300,6 +311,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     overflow: 'hidden',
     borderRadius: 8,
+  },
+
+  btn: {
+    marginTop: 25,
+    padding: 10,
+    marginRight: 10,
+    marginLeft: 10,
+    backgroundColor: 'transparent',
+    borderColor: '#ee735c',
+    borderWidth: 1,
+    borderRadius: 4,
+    color: '#ee735c'
   }
 });
 
