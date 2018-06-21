@@ -44,6 +44,12 @@ const CLOUDINARY = {
 }
 
 function avatar(id, type) {
+  if(id.indexOf('http') > -1){
+    return id
+  }
+  if(id.indexOf('data:image') > -1){
+    return id
+  }
   return CLOUDINARY.base + '/' + type + '/upload/' + id
 }
 
@@ -158,13 +164,15 @@ class Account extends Component {
 
       if(response && response.public_id){
         const user = this.state.user
-        user.avatar = avatar(response.public_id, 'image')
+        user.avatar = response.public_id
 
         this.setState({
           avatarUploading: false,
           avatarProgress: 0,
           user: user
         })
+
+        this._asyncUser(true)
       }
     }
 
@@ -183,6 +191,28 @@ class Account extends Component {
     xhr.send(body)
   }
 
+  _asyncUser(isAvatar){
+    let user = this.state.user
+    if(user && user.accessToken){
+      request.post(config.api.base + config.api.update, user)
+      .then((data) => {
+        if(data && data.success){
+          user = data.data
+
+          if(isAvatar){
+            Alert.alert('头像更新成功')
+          }
+
+          this.setState({
+            user: user
+          }, () => {
+            AsyncStorage.setItem('user', JSON.stringify(user))
+          })
+        }
+      })
+    }
+  }
+
   render(){
     const {user, avatarUploading, avatarProgress} = this.state
     return (
@@ -190,7 +220,7 @@ class Account extends Component {
       {
         user.avatar
         ? <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
-          <ImageBackground source={{uri: user.avatar}} style={styles.avatarContainer}>
+          <ImageBackground source={{uri: avatar(user.avatar, 'image')}} style={styles.avatarContainer}>
             <View style={styles.avatarBox}>
               {
                 avatarUploading
@@ -201,7 +231,7 @@ class Account extends Component {
                   progress={avatarProgress}
                   indeterminate={true} />
                 : <Image
-                  source={{uri: user.avatar}}
+                  source={{uri: avatar(user.avatar, 'image')}}
                   style={styles.avatar}/>
               }
             </View>
