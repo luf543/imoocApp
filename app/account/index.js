@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import sha1 from 'sha1'
 import Icon from 'react-native-vector-icons/Ionicons'
 import * as ImagePicker from 'react-native-image-picker'
+import * as Progress from 'react-native-progress';
 
 import request from '../common/request'
 import config from '../common/config'
@@ -51,7 +52,9 @@ class Account extends Component {
     super(props)
     const user = props.user || {}
     this.state = {
-      user: user
+      user: user,
+      avatarProgress: 0,
+      avatarUploading: false
     }
   }
 
@@ -122,6 +125,12 @@ class Account extends Component {
   _upload(body){
     const xhr = new XMLHttpRequest()
     const url = CLOUDINARY.image
+
+    this.setState({
+      avatarUploading: true,
+      avatarProgress: 0
+    })
+
     xhr.open('POST', url)
     xhr.onload = () => {
       if(xhr.status !== 200){
@@ -152,8 +161,22 @@ class Account extends Component {
         user.avatar = avatar(response.public_id, 'image')
 
         this.setState({
+          avatarUploading: false,
+          avatarProgress: 0,
           user: user
         })
+      }
+    }
+
+    if(xhr.upload){
+      xhr.upload.onprogress = (event) => {
+        if(event.lengthComputable){
+          const percent = Number((event.loaded / event.total).toFixed(2))
+
+          this.setState({
+            avatarProgress: percent
+          })
+        }
       }
     }
 
@@ -161,7 +184,7 @@ class Account extends Component {
   }
 
   render(){
-    const {user} = this.state
+    const {user, avatarUploading, avatarProgress} = this.state
     return (
       <View style={styles.container}>
       {
@@ -169,19 +192,37 @@ class Account extends Component {
         ? <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
           <ImageBackground source={{uri: user.avatar}} style={styles.avatarContainer}>
             <View style={styles.avatarBox}>
-              <Image
-                source={{uri: user.avatar}}
-                style={styles.avatar}/>
-              <Text style={styles.avatarTip}>戳这里换头像</Text>
+              {
+                avatarUploading
+                ? <Progress.Circle
+                  showsText={true}
+                  size={75}
+                  color={'#ee735c'}
+                  progress={avatarProgress}
+                  indeterminate={true} />
+                : <Image
+                  source={{uri: user.avatar}}
+                  style={styles.avatar}/>
+              }
             </View>
+            <Text style={styles.avatarTip}>戳这里换头像</Text>
           </ImageBackground>
         </TouchableOpacity>
         : <TouchableOpacity style={styles.avatarContainer} onPress={this._pickPhoto.bind(this)}>
           <Text style={styles.avatarTip}>添加头像</Text>
           <View style={styles.avatarBox}>
-            <Icon
-              name='ios-cloud-upload-outline'
-              style={styles.plusIcon}/>
+            {
+              avatarUploading
+              ? <Progress.Circle
+                showsText={true}
+                size={75}
+                color={'#ee735c'}
+                progress={avatarProgress}
+                indeterminate={true} />
+              : <Icon
+                name='ios-cloud-upload-outline'
+                style={styles.plusIcon} />
+            }
           </View>
         </TouchableOpacity>
       }
