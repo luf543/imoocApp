@@ -389,11 +389,7 @@ class Detail extends Component {
           automaticallyAdjustContentInsets={false}
         />
 
-        <Modal
-          animationType={'fade'}
-          visible={modalVisible}
-          onRequestClose={() => {this._setModalVisible(false)}}
-        >
+        <Modal visible={modalVisible}>
           <View style={styles.modalContainer}>
             <Icon
               onPress={this._closeModal.bind(this)}

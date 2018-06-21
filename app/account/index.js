@@ -65,20 +65,19 @@ class Account extends Component {
   }
 
   componentDidMount(){
-
     AsyncStorage.getItem('user')
-      .then((data) => {
-        let user
-        if(data){
-          user = JSON.parse(data)
-        }
+    .then((data) => {
+      let user
+      if(data){
+        user = JSON.parse(data)
+      }
 
-        if(user && user.accessToken){
-          this.setState({
-            user: user
-          })
-        }
-      })
+      if(user && user.accessToken){
+        this.setState({
+          user: user
+        })
+      }
+    })
   }
 
   _pickPhoto(){

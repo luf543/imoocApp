@@ -12,12 +12,14 @@ import Detail from './app/creation/detail'
 import Edit from './app/edit/index'
 import Account from './app/account/index'
 import Login from './app/account/login'
+import AccountUpdate from './app/account/update'
 
 import {
   Platform,
   StyleSheet,
   YellowBox,
   AsyncStorage,
+  Text,
 } from 'react-native';
 import {
   createBottomTabNavigator,
@@ -41,13 +43,27 @@ const headerStyle = {
 const AccountStack = createStackNavigator({
   Account: { 
     screen: Account,
+    navigationOptions: (options) => {
+      return {
+        headerTitle: '我的账户',
+        headerStyle: headerStyle[Platform.OS],
+        headerBackground: '#ee735c',
+        headerTintColor: '#fff',
+        headerRight: (
+          <Text style={{color: '#fff', paddingRight: 10}} onPress={() => options.navigation.navigate('AccountUpdate')}>编辑</Text>
+        ),
+      }
+    }
+  },
+  AccountUpdate: {
+    screen: AccountUpdate,
     navigationOptions: {
-      headerTitle: '我的账户',
+      headerTitle: '更新资料',
       headerStyle: headerStyle[Platform.OS],
       headerBackground: '#ee735c',
       headerTintColor: '#fff',
     }
-  },
+  }
 })
 
 const ListStack = createStackNavigator({
